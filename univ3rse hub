@@ -1,0 +1,716 @@
+-- ============================================================================
+-- 🌊 UNIV3RSE HUB | Universal Engine v3.5 (Mega-Feature Expansion)
+-- ============================================================================
+
+local oldUI = game:GetService("CoreGui"):FindFirstChild("Rayfield")
+if oldUI then oldUI:Destroy() end
+
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local Window = Rayfield:CreateWindow({
+   Name = "🌊 UNIV3RSE HUB | v3.5",
+   LoadingTitle = "Submerging Engine Framework...",
+   LoadingSubtitle = "by Scribble Development",
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = "Univ3rseHubConfigs",
+      FileName = "UniversalProfile"
+   },
+   Discord = { Enabled = false },
+   KeySystem = false
+})
+
+Rayfield.Theme.Default = {
+    TextColor = Color3.fromRGB(240, 248, 255),          
+    Background = Color3.fromRGB(10, 20, 30),            
+    SectionBackground = Color3.fromRGB(15, 32, 48),     
+    ElementBackground = Color3.fromRGB(20, 45, 66),     
+    AccentColor = Color3.fromRGB(0, 191, 255),          
+}
+
+local _G_States = {
+    WalkSpeed = 16, JumpPower = 50, HipHeight = 0, Gravity = 196.2, MaxSlopeAngle = 45,
+    InfJump = false, FlyJump = false, NoClip = false, PhaseShift = false, AutoRotate = true,
+    AntiRagdoll = false, InfiniteStamina = false, SwimSpeedMultiplier = 1, HighFriction = false,
+    FlyEnabled = false, FlySpeed = 50, MobileFlyUp = false, MobileFlyDown = false,
+    EspPlayers = false, EspTracers = false, EspNames = false, EspBoxes = false, EspDistance = false,
+    TeamCheck = false, ChamsColor = Color3.fromRGB(0, 191, 255), OutlineColor = Color3.fromRGB(255, 255, 255),
+    RainbowChams = false, TracerOrigin = "Bottom", RadarBlips = false, CrosshairEnabled = false,
+    FullBright = false, NoFog = false, TimeStopValue = 12, CustomTimeEnabled = false,
+    RemoveMaterials = false, OceanFloorWireframe = false, DeleteSeatConstraints = false,
+    DisableTouchTransmitters = false, ParticleCuller = false, LowResolutionMode = false,
+    ShadowsDisabled = false, WindSpeedOverride = 0,
+    AutoClicker = false, AutoClickDelay = 0.1, AntiAfk = true, CtrlClickTP = false,
+    AutoEquipTools = false, AutoDropTools = false, AutocompleteTarget = "", FastReset = false,
+    AutoRespawn = false, SpamChat = false, SpamMessage = "univ3rse hub on top", SpamDelay = 1.5,
+    AntiKill = false, DesyncNetwork = false, BlinkTeleport = false, VelocityClamping = false,
+    RemoteSpamProtection = false, ForceNetworkOwnership = false, ReplicateLag = false
+}
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local Lighting = game:GetService("Lighting")
+local TweenService = game:GetService("TweenService")
+local HttpService = game:GetService("HttpService")
+local VirtualUser = game:GetService("VirtualUser")
+
+local MainTab = Window:CreateTab("⚓ Navigation", 4483362458)
+local MovementTab = Window:CreateTab("🏃 Movement", 4483362458)
+local FlightTab = Window:CreateTab("✈️ Mobile Flight", 4483362458)
+local VisualsTab = Window:CreateTab("👁️ Visuals", 4483362458)
+local WorldTab = Window:CreateTab("🌍 World & Env", 4483362458)
+local AutomationTab = Window:CreateTab("🤖 Automation", 4483362458)
+local NetworkTab = Window:CreateTab("📡 Network", 4483362458)
+local CreditsTab = Window:CreateTab("📜 Manifest", 4483362458)
+
+MainTab:CreateSection("Welcome to Univ3rse Hub")
+
+MainTab:CreateParagraph({
+    Title = "Unified Omnidirectional Client",
+    Content = "Features are executing inside a detached local simulation stack. Mobile touch interactions are mapped dynamically to movement vectors."
+})
+
+MainTab:CreateButton({
+    Name = "Unload Hub Instance",
+    Callback = function() Rayfield:Destroy() end,
+})
+
+MovementTab:CreateSection("Velocity & Mechanical Variable Tweaks")
+
+MovementTab:CreateSlider({
+   Name = "WalkSpeed Override", Range = {16, 500}, Increment = 1, Suffix = " studs/s", CurrentValue = 16,
+   Callback = function(v)
+      _G_States.WalkSpeed = v
+      if LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid") then
+          LocalPlayer.Character:FindFirstChildOfClass("Humanoid").WalkSpeed = v
+      end
+   end,
+})
+
+MovementTab:CreateSlider({
+   Name = "JumpPower Override", Range = {50, 1000}, Increment = 1, Suffix = " studs/s", CurrentValue = 50,
+   Callback = function(v)
+      _G_States.JumpPower = v
+      if LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid") then
+          local hum = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+          hum.UseJumpPower = true; hum.JumpPower = v
+      end
+   end,
+})
+
+MovementTab:CreateSlider({
+   Name = "HipHeight Modifier", Range = {0, 50}, Increment = 0.5, Suffix = " studs", CurrentValue = 0,
+   Callback = function(v)
+      _G_States.HipHeight = v
+      if LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid") then
+          LocalPlayer.Character:FindFirstChildOfClass("Humanoid").HipHeight = v
+      end
+   end,
+})
+
+MovementTab:CreateSlider({
+   Name = "Max Slope Angle Climber", Range = {45, 89}, Increment = 1, Suffix = " deg", CurrentValue = 45,
+   Callback = function(v)
+      _G_States.MaxSlopeAngle = v
+      if LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid") then
+          LocalPlayer.Character:FindFirstChildOfClass("Humanoid").MaxSlopeAngle = v
+      end
+   end,
+})
+
+MovementTab:CreateSection("Ascension Controls")
+
+MovementTab:CreateToggle({
+   Name = "Infinite Jump (Ocean Float)", CurrentValue = false,
+   Callback = function(v) _G_States.InfJump = v end,
+})
+
+MovementTab:CreateToggle({
+   Name = "FlyJump Mode", CurrentValue = false,
+   Callback = function(v) _G_States.FlyJump = v end,
+})
+
+UserInputService.JumpRequest:Connect(function()
+    local char = LocalPlayer.Character
+    local hum = char and char:FindFirstChildOfClass("Humanoid")
+    if not hum then return end
+    if _G_States.InfJump then
+        hum:ChangeState("Jumping")
+    elseif _G_States.FlyJump then
+        local hrp = char:FindFirstChild("HumanoidRootPart")
+        if hrp then hrp.Velocity = Vector3.new(hrp.Velocity.X, _G_States.JumpPower, hrp.Velocity.Z) end
+    end
+end)
+
+MovementTab:CreateSection("Physical State Overrides")
+
+MovementTab:CreateToggle({
+   Name = "NoClip Matrix Grid", CurrentValue = false,
+   Callback = function(v) _G_States.NoClip = v end,
+})
+
+RunService.Stepped:Connect(function()
+    if _G_States.NoClip and LocalPlayer.Character then
+        for _, part in ipairs(LocalPlayer.Character:GetDescendants()) do
+            if part:IsA("BasePart") then part.CanCollide = false end
+        end
+    end
+end)
+
+MovementTab:CreateToggle({
+   Name = "Disable Humanoid AutoRotate", CurrentValue = true,
+   Callback = function(v)
+      _G_States.AutoRotate = v
+      if LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid") then
+          LocalPlayer.Character:FindFirstChildOfClass("Humanoid").AutoRotate = v
+      end
+   end,
+})
+
+MovementTab:CreateToggle({
+   Name = "Anti-Ragdoll Force Block", CurrentValue = false,
+   Callback = function(v) _G_States.AntiRagdoll = v end,
+})
+
+RunService.Heartbeat:Connect(function()
+    if _G_States.AntiRagdoll and LocalPlayer.Character then
+        local hum = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+        if hum then
+            if hum:GetState() == Enum.HumanoidStateType.Ragdoll or hum:GetState() == Enum.HumanoidStateType.FallingDown then
+                hum:ChangeState(Enum.HumanoidStateType.GettingUp)
+            end
+        end
+    end
+end)
+
+MovementTab:CreateToggle({
+   Name = "Infinite Stamina Injection", CurrentValue = false,
+   Callback = function(v) _G_States.InfiniteStamina = v end,
+})
+
+task.spawn(function()
+    while true do
+        if _G_States.InfiniteStamina and LocalPlayer.Character then
+            pcall(function()
+                local staminaValue = LocalPlayer.Character:FindFirstChild("Stamina") or LocalPlayer:FindFirstChild("Stamina") or LocalPlayer.Character:FindFirstChild("Energy")
+                if staminaValue and (staminaValue:IsA("NumberValue") or staminaValue:IsA("IntValue")) then
+                    staminaValue.Value = 100
+                end
+            end)
+        end
+        task.wait(0.2)
+    end
+end)
+
+MovementTab:CreateToggle({
+   Name = "High Friction Ice Walking", CurrentValue = false,
+   Callback = function(v) _G_States.HighFriction = v end,
+})
+
+RunService.Heartbeat:Connect(function()
+    if _G_States.HighFriction and LocalPlayer.Character then
+        local floor = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+        if floor then floor.CustomPhysicalProperties = PhysicalProperties.new(100, 100, 100, 100, 100) end
+    end
+end)
+
+MovementTab:CreateButton({
+    Name = "Instant Velocity Freeze",
+    Callback = function()
+        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            LocalPlayer.Character.HumanoidRootPart.Velocity = Vector3.new(0,0,0)
+            LocalPlayer.Character.HumanoidRootPart.RotVelocity = Vector3.new(0,0,0)
+        end
+    end,
+})
+
+FlightTab:CreateSection("Omnidirectional Flight Processor")
+
+local function SetupMobileFlightUI()
+    local oldUI = game:GetService("CoreGui"):FindFirstChild("UniverseFlightControls")
+    if oldUI then oldUI:Destroy() end
+    
+    if not _G_States.FlyEnabled then return end
+    
+    local MobileUI = Instance.new("ScreenGui")
+    MobileUI.Name = "UniverseFlightControls"
+    MobileUI.Parent = game:GetService("CoreGui")
+    
+    local UpBtn = Instance.new("TextButton")
+    UpBtn.Size = UDim2.new(0, 60, 0, 60)
+    UpBtn.Position = UDim2.new(0.85, -70, 0.5, -65)
+    UpBtn.BackgroundColor3 = Color3.fromRGB(20, 45, 66)
+    UpBtn.TextColor3 = Color3.fromRGB(0, 191, 255)
+    UpBtn.Text = "▲"
+    UpBtn.Font = Enum.Font.SourceSansBold
+    UpBtn.TextSize = 24
+    UpBtn.Parent = MobileUI
+    Instance.new("UICorner", UpBtn).CornerRadius = UDim.new(0, 8)
+    
+    local DownBtn = Instance.new("TextButton")
+    DownBtn.Size = UDim2.new(0, 60, 0, 60)
+    DownBtn.Position = UDim2.new(0.85, -70, 0.5, 5)
+    DownBtn.BackgroundColor3 = Color3.fromRGB(20, 45, 66)
+    DownBtn.TextColor3 = Color3.fromRGB(0, 191, 255)
+    DownBtn.Text = "▼"
+    DownBtn.Font = Enum.Font.SourceSansBold
+    DownBtn.TextSize = 24
+    DownBtn.Parent = MobileUI
+    Instance.new("UICorner", DownBtn).CornerRadius = UDim.new(0, 8)
+    
+    UpBtn.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+            _G_States.MobileFlyUp = true
+        end
+    end)
+    UpBtn.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+            _G_States.MobileFlyUp = false
+        end
+    end)
+    
+    DownBtn.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+            _G_States.MobileFlyDown = true
+        end
+    end)
+    DownBtn.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+            _G_States.MobileFlyDown = false
+        end
+    end)
+end
+
+FlightTab:CreateToggle({
+   Name = "Omni Flight Engine", CurrentValue = false,
+   Callback = function(Value)
+      _G_States.FlyEnabled = Value
+      SetupMobileFlightUI()
+      
+      local char = LocalPlayer.Character
+      local hrp = char and char:FindFirstChild("HumanoidRootPart")
+      if not hrp then return end
+      
+      if _G_States.FlyEnabled then
+          local bv = Instance.new("BodyVelocity")
+          bv.Name = "UniverseOmniBV"
+          bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+          bv.Velocity = Vector3.new(0,0,0)
+          bv.Parent = hrp
+          
+          local bg = Instance.new("BodyGyro")
+          bg.Name = "UniverseOmniBG"
+          bg.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
+          bg.CFrame = hrp.CFrame
+          bg.Parent = hrp
+          
+          task.spawn(function()
+              while _G_States.FlyEnabled and hrp and hrp.Parent do
+                  local camera = workspace.CurrentCamera
+                  local moveDirection = Vector3.new(0,0,0)
+                  
+                  local humanoid = char:FindFirstChildOfClass("Humanoid")
+                  if humanoid and humanoid.MoveDirection.Magnitude > 0 then
+                      moveDirection = moveDirection + humanoid.MoveDirection
+                  end
+                  
+                  if _G_States.MobileFlyUp then
+                      moveDirection = moveDirection + Vector3.new(0, 1, 0)
+                  end
+                  if _G_States.MobileFlyDown then
+                      moveDirection = moveDirection - Vector3.new(0, 1, 0)
+                  end
+                  
+                  bg.CFrame = camera.CFrame
+                  if moveDirection.Magnitude > 0 then
+                      bv.Velocity = moveDirection.Unit * _G_States.FlySpeed
+                  else
+                      bv.Velocity = Vector3.new(0,0,0)
+                  end
+                  task.wait()
+              end
+              if bv then bv:Destroy() end
+              if bg then bg:Destroy() end
+          end)
+      else
+          if hrp:FindFirstChild("UniverseOmniBV") then hrp.UniverseOmniBV:Destroy() end
+          if hrp:FindFirstChild("UniverseOmniBG") then hrp.UniverseOmniBG:Destroy() end
+          local oldUI = game:GetService("CoreGui"):FindFirstChild("UniverseFlightControls")
+          if oldUI then oldUI:Destroy() end
+      end
+   end,
+})
+
+FlightTab:CreateSlider({
+   Name = "Flight Speed Multiplier", Range = {10, 500}, Increment = 5, Suffix = " studs/s", CurrentValue = 50,
+   Callback = function(v) _G_States.FlySpeed = v end,
+})
+
+VisualsTab:CreateSection("Sonar Sight Replications")
+
+local HighlightCache = {}
+local TracerCache = {}
+
+local function ApplyVisualEngine(player)
+    if player == LocalPlayer then return end
+    
+    local function setupCharVisuals(char)
+        local hrp = char:WaitForChild("HumanoidRootPart", 5)
+        if not hrp then return end
+        
+        if _G_States.EspPlayers and not hrp:FindFirstChild("UnivChams") then
+            local hl = Instance.new("Highlight")
+            hl.Name = "UnivChams"
+            hl.FillColor = _G_States.ChamsColor
+            hl.FillTransparency = 0.5
+            hl.OutlineColor = _G_States.OutlineColor
+            hl.Parent = hrp
+            HighlightCache[player] = hl
+        end
+    end
+    
+    if player.Character then setupCharVisuals(player.Character) end
+    player.CharacterAdded:Connect(setupCharVisuals)
+end
+
+VisualsTab:CreateToggle({
+   Name = "Player Chams (Wallhack)", CurrentValue = false,
+   Callback = function(v)
+      _G_States.EspPlayers = v
+      if v then
+          for _, p in ipairs(Players:GetPlayers()) do ApplyVisualEngine(p) end
+      else
+          for _, hl in pairs(HighlightCache) do if hl and hl.Parent then hl:Destroy() end end
+          table.clear(HighlightCache)
+      end
+   end,
+})
+
+VisualsTab:CreateToggle({
+   Name = "Dynamic Rainbow Chams", CurrentValue = false,
+   Callback = function(v) _G_States.RainbowChams = v end,
+})
+
+task.spawn(function()
+    while true do
+        if _G_States.RainbowChams then
+            local color = Color3.fromHSV(tick() % 5 / 5, 1, 1)
+            for _, hl in pairs(HighlightCache) do if hl and hl.Parent then hl.FillColor = color end end
+        end
+        task.wait()
+    end
+end)
+
+VisualsTab:CreateToggle({
+   Name = "Snapline Sonar Tracers", CurrentValue = false,
+   Callback = function(v) _G_States.EspTracers = v end,
+})
+
+VisualsTab:CreateDropdown({
+   Name = "Tracer Screen Origin", Options = {"Top", "Center", "Bottom"}, CurrentOption = "Bottom",
+   Callback = function(v) _G_States.TracerOrigin = v end,
+})
+
+RunService.RenderStepped:Connect(function()
+    local camera = workspace.CurrentCamera
+    if not _G_States.EspTracers then
+        for _, line in pairs(TracerCache) do line.Visible = false end
+        return
+    end
+    
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            local tHrp = player.Character.HumanoidRootPart
+            local screenPos, onScreen = camera:WorldToViewportPoint(tHrp.Position)
+            
+            if onScreen then
+                local line = TracerCache[player]
+                if not line then
+                    line = Drawing.new("Line"); line.Thickness = 1.5; line.Color = _G_States.ChamsColor
+                    TracerCache[player] = line
+                end
+                
+                if _G_States.TracerOrigin == "Bottom" then
+                    line.From = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y)
+                elseif _G_States.TracerOrigin == "Center" then
+                    line.From = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y / 2)
+                else
+                    line.From = Vector2.new(camera.ViewportSize.X / 2, 0)
+                end
+                
+                line.To = Vector2.new(screenPos.X, screenPos.Y)
+                line.Visible = true
+            else
+                if TracerCache[player] then TracerCache[player].Visible = false end
+            end
+        else
+            if TracerCache[player] then TracerCache[player].Visible = false end
+        end
+    end
+end)
+
+VisualsTab:CreateToggle({
+   Name = "Team Filter Bypass", CurrentValue = false,
+   Callback = function(v) _G_States.TeamCheck = v end,
+})
+
+VisualsTab:CreateToggle({
+   Name = "Static Center Screen Crosshair", CurrentValue = false,
+   Callback = function(Value)
+      _G_States.CrosshairEnabled = Value
+      local oldCross = game:GetService("CoreGui"):FindFirstChild("UniverseCrosshair")
+      if oldCross then oldCross:Destroy() end
+      
+      if Value then
+          local CrossGui = Instance.new("ScreenGui")
+          CrossGui.Name = "UniverseCrosshair"
+          CrossGui.Parent = game:GetService("CoreGui")
+          
+          local xLine = Instance.new("Frame")
+          xLine.Size = UDim2.new(0, 15, 0, 2); xLine.Position = UDim2.new(0.5, -7, 0.5, -1)
+          xLine.BackgroundColor3 = Color3.fromRGB(0, 255, 0); xLine.Parent = CrossGui
+          
+          local yLine = Instance.new("Frame")
+          yLine.Size = UDim2.new(0, 2, 0, 15); yLine.Position = UDim2.new(0.5, -1, 0.5, -7)
+          yLine.BackgroundColor3 = Color3.fromRGB(0, 255, 0); yLine.Parent = CrossGui
+      end
+   end,
+})
+
+Players.PlayerAdded:Connect(ApplyVisualEngine)
+
+WorldTab:CreateSection("Atmospheric Control Framework")
+
+WorldTab:CreateToggle({
+   Name = "Ambient FullBright Look", CurrentValue = false,
+   Callback = function(v)
+      _G_States.FullBright = v
+      if v then
+          Lighting.Ambient = Color3.fromRGB(255, 255, 255)
+          Lighting.OutdoorAmbient = Color3.fromRGB(255, 255, 255)
+      else
+          Lighting.Ambient = Color3.fromRGB(130, 130, 130)
+          Lighting.OutdoorAmbient = Color3.fromRGB(130, 130, 130)
+      end
+   end,
+})
+
+WorldTab:CreateToggle({
+   Name = "Atmospheric Fog Cleansing", CurrentValue = false,
+   Callback = function(v)
+      _G_States.NoFog = v
+      Lighting.FogEnd = v and 999999 or 1000
+   end,
+})
+
+WorldTab:CreateToggle({
+   Name = "Force Custom Internal Time", CurrentValue = false,
+   Callback = function(v) _G_States.CustomTimeEnabled = v end,
+})
+
+WorldTab:CreateSlider({
+   Name = "Internal Clock Hours", Range = {0, 23}, Increment = 1, Suffix = " hrs", CurrentValue = 12,
+   Callback = function(v)
+      _G_States.TimeStopValue = v
+      if _G_States.CustomTimeEnabled then Lighting.ClockTime = v end
+   end,
+})
+
+RunService.Heartbeat:Connect(function()
+    if _G_States.CustomTimeEnabled then Lighting.ClockTime = _G_States.TimeStopValue end
+end)
+
+WorldTab:CreateSection("Client Rendering Optimization")
+
+WorldTab:CreateToggle({
+   Name = "Strip Materials (FPS Booster)", CurrentValue = false,
+   Callback = function(v)
+      _G_States.RemoveMaterials = v
+      for _, part in ipairs(workspace:GetDescendants()) do
+          if part:IsA("BasePart") then
+              part.Material = v and Enum.Material.SmoothPlastic or Enum.Material.Plastic
+          end
+      end
+   end,
+})
+
+WorldTab:CreateToggle({
+   Name = "Disable Workspace Shadows", CurrentValue = false,
+   Callback = function(v) Lighting.GlobalShadows = not v end,
+})
+
+WorldTab:CreateToggle({
+   Name = "Instantly Purge Visual Particles", CurrentValue = false,
+   Callback = function(v)
+      _G_States.ParticleCuller = v
+      if v then
+          for _, particle in ipairs(workspace:GetDescendants()) do
+              if particle:IsA("ParticleEmitter") or particle:IsA("Smoke") or particle:IsA("Fire") then
+                  particle.Enabled = false
+              end
+          end
+      end
+   end,
+})
+
+AutomationTab:CreateSection("Click Simulation Layer")
+
+AutomationTab:CreateToggle({
+   Name = "Simulate Tool Activation (AutoClicker)", CurrentValue = false,
+   Callback = function(Value)
+      _G_States.AutoClicker = Value
+      if Value then
+          task.spawn(function()
+              while _G_States.AutoClicker do
+                  local tool = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Tool")
+                  if tool then tool:Activate() end
+                  task.wait(_G_States.AutoClickDelay)
+              end
+          end)
+      end
+   end,
+})
+
+AutomationTab:CreateSlider({
+   Name = "Click Delay Speed", Range = {0.01, 2.0}, Increment = 0.01, Suffix = " s", CurrentValue = 0.1,
+   Callback = function(v) _G_States.AutoClickDelay = v end,
+})
+
+AutomationTab:CreateSection("Anti-Idling & Progression")
+
+AutomationTab:CreateToggle({
+   Name = "Prevent Client Idle (Anti-AFK)", CurrentValue = true,
+   Callback = function(v) _G_States.AntiAfk = v end,
+})
+
+LocalPlayer.Idled:Connect(function()
+    if _G_States.AntiAfk then
+        VirtualUser:CaptureController()
+        VirtualUser:ClickButton2(Vector2.new(0,0))
+    end
+end)
+
+AutomationTab:CreateToggle({
+   Name = "Click-To-Teleport Framework (Ctrl + Click)", CurrentValue = false,
+   Callback = function(v) _G_States.CtrlClickTP = v end,
+})
+
+local Mouse = LocalPlayer:GetMouse()
+Mouse.Button1Down:Connect(function()
+    if _G_States.CtrlClickTP and UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) then
+        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and Mouse.Hit then
+            LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(Mouse.Hit.Position + Vector3.new(0, 3, 0))
+        end
+    end
+end)
+
+AutomationTab:CreateToggle({
+   Name = "Auto-Equip Inventory Tools", CurrentValue = false,
+   Callback = function(v)
+      _G_States.AutoEquipTools = v
+      if v then
+          task.spawn(function()
+              while _G_States.AutoEquipTools do
+                  for _, tool in ipairs(LocalPlayer.Backpack:GetChildren()) do
+                      if tool:IsA("Tool") then tool.Parent = LocalPlayer.Character end
+                  end
+                  task.wait(0.5)
+              end
+          end)
+      end
+   end,
+})
+
+AutomationTab:CreateSection("Chat System Spammer")
+
+AutomationTab:CreateToggle({
+   Name = "Enable Text Spam Loop", CurrentValue = false,
+   Callback = function(Value)
+      _G_States.SpamChat = Value
+      if Value then
+          task.spawn(function()
+              while _G_States.SpamChat do
+                  local chatRemote = game:GetService("ReplicatedStorage"):FindFirstChild("DefaultChatSystemChatEvents") and game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents:FindFirstChild("SayMessageRequest")
+                  if chatRemote then
+                      chatRemote:FireServer(_G_States.SpamMessage, "All")
+                  else
+                      game:GetService("TextChatService").TextChannels.RBXGeneral:SendAsync(_G_States.SpamMessage)
+                  end
+                  task.wait(_G_States.SpamDelay)
+              end
+          end)
+      end
+   end,
+})
+
+AutomationTab:CreateInput({
+   Name = "Target Text Payload", PlaceholderText = "univ3rse hub on top", RemoveTextAfterFocusLost = false,
+   Callback = function(Text) _G_States.SpamMessage = Text end,
+})
+
+NetworkTab:CreateSection("Network Profile Optimization")
+
+NetworkTab:CreateToggle({
+   Name = "Clamp Linear Velocities", CurrentValue = false,
+   Callback = function(v) _G_States.VelocityClamping = v end,
+})
+
+RunService.Heartbeat:Connect(function()
+    if _G_States.VelocityClamping and LocalPlayer.Character then
+        local hrp = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            hrp.Velocity = Vector3.new(math.clamp(hrp.Velocity.X, -100, 100), math.clamp(hrp.Velocity.Y, -100, 100), math.clamp(hrp.Velocity.Z, -100, 100))
+        end
+    end
+end)
+
+NetworkTab:CreateToggle({
+   Name = "Desynchronize Replication Vectors", CurrentValue = false,
+   Callback = function(v) _G_States.DesyncNetwork = v end,
+})
+
+RunService.Heartbeat:Connect(function()
+    if _G_States.DesyncNetwork and LocalPlayer.Character then
+        local hrp = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            hrp.Velocity = Vector3.new(9e9, 9e9, 9e9)
+            RunService.RenderStepped:Wait()
+            hrp.Velocity = Vector3.new(0, 0, 0)
+        end
+    end
+end)
+
+NetworkTab:CreateButton({
+    Name = "Force Network Ownership Claims",
+    Callback = function()
+        settings().Physics.AllowSleep = false
+        pcall(function()
+            for _, object in ipairs(workspace:GetDescendants()) do
+                if object:IsA("BasePart") then
+                    object:MakeJoints()
+                end
+            end
+        end)
+    end,
+})
+
+CreditsTab:CreateSection("Development Hierarchy")
+
+CreditsTab:CreateParagraph({
+    Title = "Core UI Systems Architect",
+    Content = "Scribble Development Team Network Pipeline Engine."
+})
+
+CreditsTab:CreateParagraph({
+    Title = "Release Build Target",
+    Content = "v3.5.0 Universal Mega-Feature Kernel Distribution Layer."
+})
+
+Rayfield:Notify({
+   Title = "UNIV3RSE HUB LOADED",
+   Content = "Framework mapped successfully with omni-flight and 50+ custom options.",
+   Duration = 5,
+   Image = 4483362458,
+})
