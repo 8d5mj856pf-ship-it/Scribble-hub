@@ -82,7 +82,7 @@ end
 yesBtn.MouseButton1Click:Connect(function()
     screenGui:Destroy()
     
-    local messages = {"yo to the yo tengomessy SCRIBBLES BEST LOADED", "im sigma", "enjoy the cewl hub"}
+    local messages = {"yo to the yo tengomessy SCRIBBLES BEST LOADED", "im sigma", "enjoy the cewl hub", "btw W goobastank and groundskeeper"}
     
     for i, msg in ipairs(messages) do
         sendChatMessage(msg)
