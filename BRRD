@@ -176,15 +176,15 @@ styleElement(baseWiperButton, UDim2.new(0, 220, 0, 35), UDim2.new(0, 10, 0, 275)
 -- --- CREDITS INTERFACE ELEMENT (ENLARGED) ---
 local creditsLabel = Instance.new("TextLabel")
 styleElement(creditsLabel, UDim2.new(0, 220, 0, 45), UDim2.new(0, 10, 0, 320), "by lol1zX_Xz1lol\nYT: @Messy_tsb", Color3.fromRGB(28, 28, 28))
-creditsLabel.TextSize = 15 -- Increased font size
-creditsLabel.Font = Enum.Font.SourceSansBoldItalic -- Made bold-italic for extra visibility
-creditsLabel.TextColor3 = Color3.fromRGB(255, 255, 255) -- Pure white for scannability
+creditsLabel.TextSize = 15
+creditsLabel.Font = Enum.Font.SourceSansBoldItalic
+creditsLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 
 
 -- --- RIGHT SIDE SCROLLING SLOTS ---
 local scrollFrame = Instance.new("ScrollingFrame")
 scrollFrame.Name = "SlotsScroller"
-scrollFrame.Size = UDim2.new(0, 130, 0, 320) -- Extended height to stay proportional
+scrollFrame.Size = UDim2.new(0, 130, 0, 320)
 scrollFrame.Position = UDim2.new(0, 240, 0, 45)
 scrollFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 scrollFrame.BorderSizePixel = 0
@@ -331,7 +331,7 @@ end)
 
 -- Speed Override Trigger
 speedButton.MouseButton1Click:Connect(function()
-    not speedEnabled
+    speedEnabled = not speedEnabled
     enforceState()
     
     if speedEnabled then
