@@ -1,0 +1,405 @@
+-- BRRD: Brain Rot Ripoff Destroyer (Base Wiper Edition - 10 Slots)
+-- Complete Multi-Tool Utility for Mobile & PC Execution with Minimize Toggle
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local player = Players.LocalPlayer
+
+-- State variables
+local speedEnabled = false
+local noclipEnabled = false
+local infJumpEnabled = false
+local baseWiperEnabled = false
+local activeSlot = 1
+local menuVisible = true
+
+-- Table to hold the 10 slot coordinate texts
+local savedSlots = {}
+for i = 1, 10 do
+    savedSlots[i] = ""
+end
+
+local noclipConnection = nil
+local infJumpConnection = nil
+
+-- Create the ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "BRRD_Utility"
+screenGui.ResetOnSpawn = false
+
+-- Fallback UI Parenting (Ensures visibility across mobile executors)
+local targetParent = nil
+local success, coregui = pcall(function() return game:GetService("CoreGui") end)
+if success and coregui then
+    targetParent = coregui
+elseif gethui then
+    targetParent = gethui()
+else
+    targetParent = player:WaitForChild("PlayerGui", 5)
+end
+screenGui.Parent = targetParent
+
+-- Main Frame Window (Widened to 380 to cleanly fit the ScrollingFrame)
+local mainFrame = Instance.new("Frame")
+mainFrame.Name = "MainFrame"
+mainFrame.Size = UDim2.new(0, 380, 0, 360)
+mainFrame.Position = UDim2.new(0.1, 0, 0.2, 0)
+mainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+mainFrame.Active = true
+mainFrame.Parent = screenGui
+
+local frameCorner = Instance.new("UICorner")
+frameCorner.CornerRadius = UDim.new(0, 8)
+frameCorner.Parent = mainFrame
+
+-- Top Title Bar (BRRD)
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Name = "TitleLabel"
+titleLabel.Size = UDim2.new(1, 0, 0, 30)
+titleLabel.Position = UDim2.new(0, 0, 0, 0)
+titleLabel.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+titleLabel.TextColor3 = Color3.fromRGB(255, 60, 60)
+titleLabel.TextSize = 14
+titleLabel.Font = Enum.Font.SourceSansBold
+titleLabel.Text = "  BRRD (Brain Rot Ripoff Destroyer)"
+titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+titleLabel.Parent = mainFrame
+
+local titleCorner = Instance.new("UICorner")
+titleCorner.CornerRadius = UDim.new(0, 8)
+titleCorner.Parent = titleLabel
+
+-- --- MINIMIZE / OPEN FLOATING BUTTON ---
+local toggleButton = Instance.new("TextButton")
+toggleButton.Name = "ToggleButton"
+toggleButton.Size = UDim2.new(0, 65, 0, 30)
+toggleButton.Position = UDim2.new(0.1, 0, 0.15, 0) -- Independent floating positioning
+toggleButton.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+toggleButton.TextColor3 = Color3.fromRGB(255, 60, 60)
+toggleButton.TextSize = 14
+toggleButton.Font = Enum.Font.SourceSansBold
+toggleButton.Text = "BRRD"
+toggleButton.Active = true
+toggleButton.Draggable = true -- Allows you to move the opening button wherever you want
+toggleButton.Parent = screenGui
+
+local toggleCorner = Instance.new("UICorner")
+toggleCorner.CornerRadius = UDim.new(0, 6)
+toggleCorner.Parent = toggleButton
+
+toggleButton.MouseButton1Click:Connect(function()
+    menuVisible = not menuVisible
+    mainFrame.Visible = menuVisible
+end)
+
+
+-- --- MOBILE & PC SAFE DRAGGING SYSTEM ---
+local dragging, dragInput, dragStart, startPos
+local function update(input)
+    local delta = input.Position - dragStart
+    mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
+
+mainFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = mainFrame.Position
+        
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+mainFrame.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        dragInput = input
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        update(input)
+    end
+end)
+
+-- Styling layout helper function
+local function styleElement(element, size, position, text, bgCol, parentFrame)
+    element.Size = size
+    element.Position = position
+    element.BackgroundColor3 = bgCol or Color3.fromRGB(45, 45, 45)
+    element.Parent = parentFrame or mainFrame
+    
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 6)
+    corner.Parent = element
+
+    if element:IsA("TextBox") or element:IsA("TextButton") or element:IsA("TextLabel") then
+        element.TextColor3 = Color3.fromRGB(255, 255, 255)
+        element.TextSize = 14
+        element.Font = Enum.Font.SourceSans
+        element.Text = text
+    end
+    if element:IsA("TextButton") then
+        element.Font = Enum.Font.SourceSansBold
+    end
+end
+
+-- --- LEFT SIDE UTILITIES ---
+local inputBox = Instance.new("TextBox")
+styleElement(inputBox, UDim2.new(0, 220, 0, 35), UDim2.new(0, 10, 0, 45), "")
+inputBox.PlaceholderText = "Paste coordinates here..."
+inputBox.ClearTextOnFocus = false
+
+local tpButton = Instance.new("TextButton")
+styleElement(tpButton, UDim2.new(0, 105, 0, 35), UDim2.new(0, 10, 0, 90), "Teleport", Color3.fromRGB(0, 120, 215))
+
+local setPosButton = Instance.new("TextButton")
+styleElement(setPosButton, UDim2.new(0, 105, 0, 35), UDim2.new(0, 125, 0, 90), "Set Position", Color3.fromRGB(50, 120, 50))
+
+local speedButton = Instance.new("TextButton")
+styleElement(speedButton, UDim2.new(0, 220, 0, 35), UDim2.new(0, 10, 0, 140), "Speed 50: OFF")
+
+local noclipButton = Instance.new("TextButton")
+styleElement(noclipButton, UDim2.new(0, 220, 0, 35), UDim2.new(0, 10, 0, 185), "Noclip: OFF")
+
+local infJumpButton = Instance.new("TextButton")
+styleElement(infJumpButton, UDim2.new(0, 220, 0, 35), UDim2.new(0, 10, 0, 230), "Infinite Jump: OFF")
+
+local baseWiperButton = Instance.new("TextButton")
+styleElement(baseWiperButton, UDim2.new(0, 220, 0, 35), UDim2.new(0, 10, 0, 275), "Base Wiper Edition: OFF", Color3.fromRGB(75, 20, 20))
+
+
+-- --- RIGHT SIDE SCROLLING SLOTS ---
+local scrollFrame = Instance.new("ScrollingFrame")
+scrollFrame.Name = "SlotsScroller"
+scrollFrame.Size = UDim2.new(0, 130, 0, 265)
+scrollFrame.Position = UDim2.new(0, 240, 0, 45)
+scrollFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+scrollFrame.BorderSizePixel = 0
+scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 560)
+scrollFrame.ScrollBarThickness = 4
+scrollFrame.Parent = mainFrame
+
+local scrollCorner = Instance.new("UICorner")
+scrollCorner.CornerRadius = UDim.new(0, 6)
+scrollCorner.Parent = scrollFrame
+
+local slotButtons = {}
+
+-- Helper to set the text layout correctly for Slot 1 vs others
+local function updateSlotText(slotNum)
+    local status = (savedSlots[slotNum] == "") and "[Empty]" or "[Saved]"
+    if slotNum == 1 then
+        slotButtons[1].Text = "Slot 1\n" .. status .. "\n[Set this to your base]"
+    else
+        slotButtons[slotNum].Text = "Slot " .. slotNum .. "\n" .. status
+    end
+end
+
+-- Update UI backgrounds when active slot transitions
+local function refreshSlotVisuals()
+    for i = 1, 10 do
+        if slotButtons[i] then
+            if i == activeSlot then
+                slotButtons[i].BackgroundColor3 = Color3.fromRGB(200, 60, 60)
+            else
+                slotButtons[i].BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+            end
+        end
+    end
+end
+
+-- Generate the 10 slot elements inside the ScrollingFrame
+for i = 1, 10 do
+    local sButton = Instance.new("TextButton")
+    styleElement(sButton, UDim2.new(0, 115, 0, 45), UDim2.new(0, 5, 0, (i - 1) * 55 + 5), "", Color3.fromRGB(50, 50, 50), scrollFrame)
+    sButton.TextSize = 11
+    slotButtons[i] = sButton
+    
+    updateSlotText(i)
+    
+    sButton.MouseButton1Click:Connect(function()
+        activeSlot = i
+        inputBox.Text = savedSlots[i]
+        refreshSlotVisuals()
+    end)
+end
+refreshSlotVisuals()
+
+-- Keep the inputBox dynamically synced with changes
+inputBox:GetPropertyChangedSignal("Text"):Connect(function()
+    savedSlots[activeSlot] = inputBox.Text
+    updateSlotText(activeSlot)
+end)
+
+
+-- --- CONFIGURATION ENFORCEMENT LOOP ---
+local function enforceState()
+    local character = player.Character
+    local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+    if humanoid then
+        if speedEnabled then
+            humanoid.WalkSpeed = 50
+        else
+            humanoid.WalkSpeed = 16
+        end
+    end
+end
+
+player.CharacterAdded:Connect(function(char)
+    char:WaitForChild("Humanoid", 5)
+    task.wait(0.1)
+    enforceState()
+end)
+
+RunService.PostSimulation:Connect(enforceState)
+
+
+-- --- ACTION FUNCTIONS ---
+
+local function parseCoordinates(text)
+    local coords = {}
+    for num in string.gmatch(text, "%-?%d+%.?%d*") do
+        table.insert(coords, tonumber(num))
+    end
+    return coords
+end
+
+-- Teleport Setup
+tpButton.MouseButton1Click:Connect(function()
+    local text = inputBox.Text
+    local coords = parseCoordinates(text)
+    
+    if #coords >= 3 then
+        local targetPosition = Vector3.new(coords[1], coords[2], coords[3])
+        local character = player.Character
+        local root = character and character:FindFirstChild("HumanoidRootPart")
+        
+        if root then
+            if baseWiperEnabled then
+                task.spawn(function()
+                    local originalPosition = root.CFrame
+                    root.CFrame = CFrame.new(targetPosition)
+                    task.wait(0.02)
+                    enforceState()
+                    
+                    task.wait(0.3)
+                    
+                    if root and root.Parent then
+                        root.CFrame = originalPosition
+                        task.wait(0.02)
+                        enforceState()
+                    end
+                end)
+            else
+                root.CFrame = CFrame.new(targetPosition)
+                task.wait(0.02)
+                enforceState()
+            end
+        end
+    else
+        local originalText = tpButton.Text
+        tpButton.Text = "Invalid Form!"
+        tpButton.BackgroundColor3 = Color3.fromRGB(180, 40, 40)
+        task.wait(1.5)
+        tpButton.Text = originalText
+        tpButton.BackgroundColor3 = Color3.fromRGB(0, 120, 215)
+    end
+end)
+
+-- Set Position Configuration
+setPosButton.MouseButton1Click:Connect(function()
+    local character = player.Character
+    local root = character and character:FindFirstChild("HumanoidRootPart")
+    if root then
+        local pos = root.Position
+        inputBox.Text = string.format("%.3f, %.3f, %.3f", pos.X, pos.Y, pos.Z)
+    end
+end)
+
+-- Speed Override Trigger
+speedButton.MouseButton1Click:Connect(function()
+    speedEnabled = not speedEnabled
+    enforceState()
+    
+    if speedEnabled then
+        speedButton.Text = "Speed 50: ON"
+        speedButton.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
+    else
+        speedButton.Text = "Speed 50: OFF"
+        speedButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    end
+end)
+
+-- Noclip Execution Engine
+noclipButton.MouseButton1Click:Connect(function()
+    noclipEnabled = not noclipEnabled
+    
+    if noclipEnabled then
+        noclipButton.Text = "Noclip: ON"
+        noclipButton.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
+        
+        noclipConnection = RunService.PreSimulation:Connect(function()
+            local character = player.Character
+            if character and noclipEnabled then
+                for _, part in pairs(character:GetDescendants()) do
+                    if part:IsA("BasePart") and part.CanCollide then
+                        part.CanCollide = false
+                    end
+                end
+            end
+        end)
+    else
+        noclipButton.Text = "Noclip: OFF"
+        noclipButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+        if noclipConnection then
+            noclipConnection:Disconnect()
+            noclipConnection = nil
+        end
+    end
+end)
+
+-- Infinite Jump Activation Engine
+infJumpButton.MouseButton1Click:Connect(function()
+    infJumpEnabled = not infJumpEnabled
+    
+    if infJumpEnabled then
+        infJumpButton.Text = "Infinite Jump: ON"
+        infJumpButton.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
+        
+        infJumpConnection = UserInputService.JumpRequest:Connect(function()
+            if infJumpEnabled then
+                local character = player.Character
+                local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+                if humanoid then
+                    humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+                end
+            end
+        end)
+    else
+        infJumpButton.Text = "Infinite Jump: OFF"
+        infJumpButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+        if infJumpConnection then
+            infJumpConnection:Disconnect()
+            infJumpConnection = nil
+        end
+    end
+end)
+
+-- Base Wiper Edition Toggle Button
+baseWiperButton.MouseButton1Click:Connect(function()
+    baseWiperEnabled = not baseWiperEnabled
+    
+    if baseWiperEnabled then
+        baseWiperButton.Text = "Base Wiper Edition: ON"
+        baseWiperButton.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
+    else
+        baseWiperButton.Text = "Base Wiper Edition: OFF"
+        baseWiperButton.BackgroundColor3 = Color3.fromRGB(75, 20, 20)
+    end
+end)
