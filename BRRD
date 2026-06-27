@@ -43,7 +43,7 @@ screenGui.Parent = targetParent
 -- Main Frame Window (Widened to 380 to cleanly fit the ScrollingFrame)
 local mainFrame = Instance.new("Frame")
 mainFrame.Name = "MainFrame"
-mainFrame.Size = UDim2.new(0, 380, 0, 360)
+mainFrame.Size = UDim2.new(0, 380, 0, 400) -- Adjusted height to properly fit enlarged credits
 mainFrame.Position = UDim2.new(0.1, 0, 0.2, 0)
 mainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 mainFrame.Active = true
@@ -74,14 +74,14 @@ titleCorner.Parent = titleLabel
 local toggleButton = Instance.new("TextButton")
 toggleButton.Name = "ToggleButton"
 toggleButton.Size = UDim2.new(0, 65, 0, 30)
-toggleButton.Position = UDim2.new(0.1, 0, 0.15, 0) -- Independent floating positioning
+toggleButton.Position = UDim2.new(0.1, 0, 0.15, 0)
 toggleButton.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
 toggleButton.TextColor3 = Color3.fromRGB(255, 60, 60)
 toggleButton.TextSize = 14
 toggleButton.Font = Enum.Font.SourceSansBold
 toggleButton.Text = "BRRD"
 toggleButton.Active = true
-toggleButton.Draggable = true -- Allows you to move the opening button wherever you want
+toggleButton.Draggable = true
 toggleButton.Parent = screenGui
 
 local toggleCorner = Instance.new("UICorner")
@@ -173,11 +173,18 @@ styleElement(infJumpButton, UDim2.new(0, 220, 0, 35), UDim2.new(0, 10, 0, 230), 
 local baseWiperButton = Instance.new("TextButton")
 styleElement(baseWiperButton, UDim2.new(0, 220, 0, 35), UDim2.new(0, 10, 0, 275), "Base Wiper Edition: OFF", Color3.fromRGB(75, 20, 20))
 
+-- --- CREDITS INTERFACE ELEMENT (ENLARGED) ---
+local creditsLabel = Instance.new("TextLabel")
+styleElement(creditsLabel, UDim2.new(0, 220, 0, 45), UDim2.new(0, 10, 0, 320), "by lol1zX_Xz1lol\nYT: @Messy_tsb", Color3.fromRGB(28, 28, 28))
+creditsLabel.TextSize = 15 -- Increased font size
+creditsLabel.Font = Enum.Font.SourceSansBoldItalic -- Made bold-italic for extra visibility
+creditsLabel.TextColor3 = Color3.fromRGB(255, 255, 255) -- Pure white for scannability
+
 
 -- --- RIGHT SIDE SCROLLING SLOTS ---
 local scrollFrame = Instance.new("ScrollingFrame")
 scrollFrame.Name = "SlotsScroller"
-scrollFrame.Size = UDim2.new(0, 130, 0, 265)
+scrollFrame.Size = UDim2.new(0, 130, 0, 320) -- Extended height to stay proportional
 scrollFrame.Position = UDim2.new(0, 240, 0, 45)
 scrollFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 scrollFrame.BorderSizePixel = 0
@@ -324,7 +331,7 @@ end)
 
 -- Speed Override Trigger
 speedButton.MouseButton1Click:Connect(function()
-    speedEnabled = not speedEnabled
+    not speedEnabled
     enforceState()
     
     if speedEnabled then
